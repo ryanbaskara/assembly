@@ -1,0 +1,731 @@
+     1                                 %line 1+1 main.asm
+     2                                 
+     3                                 
+     4                                 %line 1+1 scanNum.asm
+     5                                 
+     6                                 
+     7                                 
+     8                                 
+     9                                 
+    10                                 %line 8+1 scanNum.asm
+    11                                 
+    12                                 [section .data]
+    13                                 
+    14 00000000 0A000000                _scanNumSepuluh dd 10
+    15                                 
+    16                                 [section .bss]
+    17 00000000 <gap>                   _scanNumStr resb 1
+    18                                 
+    19                                 
+    20 00000001 <gap>                   _scanNumResult resd 1
+    21                                 
+    22                                 
+    23 00000005 <gap>                   _scanNumNegative resd 1
+    24                                 
+    25                                 [section .text]
+    26                                 
+    27                                 
+    28                                 _scanNumRead:
+    29                                 
+    30                                 
+    31 00000000 B803000000              mov eax, 3
+    32 00000005 BB00000000              mov ebx, 0
+    33 0000000A B9[00000000]            mov ecx, _scanNumStr
+    34 0000000F BA01000000              mov edx, 1
+    35 00000014 CD80                    int 0x80
+    36                                 
+    37 00000016 C3                      ret
+    38                                 
+    39                                 
+    40                                 scanNum:
+    41                                 
+    42                                 
+    43 00000017 C705[00000000]0000-     mov dword [_scanNumResult], 0
+    44 00000017 0000               
+    45 00000021 C705[00000000]0100-     mov dword [_scanNumNegative], 1
+    46 00000021 0000               
+    47                                 
+    48 0000002B E8CBFFFFFF              call _scanNumRead
+    49                                 
+    50                                 
+    51 00000030 803D[00000000]2D        cmp byte[_scanNumStr], '-'
+    52 00000037 750A                    jne _scanNumLoop
+    53                                 
+    54                                 
+    55 00000039 C705[00000000]FFFF-     mov dword [_scanNumNegative], -1
+    56 00000039 FFFF               
+    57 00000043 EB2D                    jmp _scanNumNegativeNext
+    58                                 
+    59                                 
+    60                                 _scanNumLoop:
+    61                                 
+    62                                 
+    63 00000045 BB00000000              mov ebx, 0
+    64 0000004A 8A1D[00000000]          mov bl, byte[_scanNumStr]
+    65                                 
+    66                                 
+    67 00000050 80FB30                  cmp bl, '0'
+    68 00000053 7C24                    jl _scanNumExit
+    69 00000055 80FB39                  cmp bl, '9'
+    70 00000058 7F1F                    jg _scanNumExit
+    71                                 
+    72                                 
+    73 0000005A 80EB30                  sub bl, '0'
+    74                                 
+    75                                 
+    76 0000005D A1[00000000]            mov eax, [_scanNumResult]
+    77 00000062 BA00000000              mov edx, 0
+    78 00000067 F725[00000000]          mul dword [_scanNumSepuluh]
+    79 0000006D 01D8                    add eax, ebx
+    80 0000006F A3[00000000]            mov dword [_scanNumResult], eax
+    81                                 
+    82                                 _scanNumNegativeNext:
+    83                                 
+    84                                 
+    85 00000074 E882FFFFFF              call _scanNumRead
+    86                                 
+    87 00000079 EBC8                    jmp _scanNumLoop
+    88                                 
+    89                                 
+    90                                 _scanNumExit:
+    91                                 
+    92                                 
+    93 0000007B A1[00000000]            mov eax, [_scanNumResult]
+    94 00000080 99                      cdq
+    95 00000081 F72D[00000000]          imul dword[_scanNumNegative]
+    96                                 
+    97 00000087 C3                      ret
+    98                                 
+    99                                 
+   100                                 %line 1+1 printChar.asm
+   101                                 
+   102                                 %line 4+1 printChar.asm
+   103                                 
+   104                                 [section .data]
+   105                                 
+   106                                 [section .bss]
+   107 00000009 <gap>                   _char resb 1
+   108                                 
+   109                                 [section .text]
+   110                                 
+   111                                 printChar:
+   112                                 
+   113 00000088 A2[00000000]            mov byte[_char], al
+   114 0000008D B804000000              mov eax, 4
+   115 00000092 BB01000000              mov ebx, 1
+   116 00000097 B9[00000000]            mov ecx, _char
+   117 0000009C BA01000000              mov edx, 1
+   118 000000A1 CD80                    int 0x80
+   119                                 
+   120 000000A3 C3                      ret
+   121                                 
+   122                                 
+   123                                 %line 1+1 printStr.asm
+   124                                 
+   125                                 %line 4+1 printStr.asm
+   126                                 
+   127                                 [section .data]
+   128                                 
+   129                                 [section .bss]
+   130                                 
+   131                                 [section .text]
+   132                                 
+   133                                 printString:
+   134 000000A4 BB01000000              mov ebx, 1
+   135                                 
+   136 000000A9 89C1                    mov ecx, eax
+   137                                 
+   138                                 _printStrLoop:
+   139                                 
+   140                                 
+   141 000000AB 803900                  cmp byte [ecx], 0
+   142 000000AE 740F                    je _printStrExit
+   143                                 
+   144                                 
+   145 000000B0 B804000000              mov eax, 4
+   146 000000B5 BA01000000              mov edx, 1
+   147 000000BA CD80                    int 0x80
+   148                                 
+   149                                 
+   150 000000BC 83C101                  add ecx, 1
+   151                                 
+   152 000000BF EBE8                    jmp _printStrLoop
+   153                                 
+   154                                 _printStrExit:
+   155                                 
+   156 000000C1 C3                      ret
+   157                                 
+   158                                 
+   159                                 %line 1+1 printFloat.asm
+   160                                 
+   161                                 
+   162                                 
+   163                                 
+   164                                 %line 7+1 printFloat.asm
+   165                                 
+   166                                 _printFloatStrLen equ 255
+   167                                 
+   168                                 [section .data]
+   169                                 
+   170 00000004 0A000000                _printFloatSepuluh dd 10
+   171                                 
+   172                                 
+   173                                 [section .bss]
+   174                                 
+   175 0000000A <gap>                   _printFloat resb _printFloatStrLen
+   176 00000109 <gap>                   _cekNegativ resd 1
+   177                                 
+   178                                 [section .text]
+   179                                 
+   180                                 printFloat:
+   181                                 
+   182                                 
+   183 000000C2 B9FF000000              mov ecx, _printFloatStrLen
+   184 000000C7 83E901                  sub ecx, 1
+   185 000000CA C705[00000000]0000-     mov dword[_cekNegativ],0
+   186 000000CA 0000               
+   187                                 
+   188 000000D4 83F800                  cmp eax, 0
+   189 000000D7 7C16                    jl _Negativ
+   190                                 
+   191 000000D9 83F800                  cmp eax, 0
+   192 000000DC 0F8404010000            je _FZero
+   193                                 
+   194                                 _Cek:
+   195 000000E2 83F80A                  cmp eax, 10
+   196 000000E5 7C1B                    jl _1digit
+   197                                 
+   198 000000E7 83F864                  cmp eax, 100
+   199 000000EA 7C54                    jl _2digit
+   200 000000EC E98D000000              jmp _lebih
+   201                                 
+   202                                 _Negativ:
+   203 000000F1 C705[00000000]0100-     mov dword[_cekNegativ],1
+   204 000000F1 0000               
+   205 000000FB BBFFFFFFFF              mov ebx, -1
+   206 00000100 F7EB                    imul ebx
+   207 00000102 EBDC                    jmp _Cek
+   208                                 
+   209                                 _1digit:
+   210 00000104 89C2                    mov edx, eax
+   211 00000106 80C230                  add dl, '0'
+   212 00000109 8891[00000000]          mov byte[_printFloat+ ecx], dl
+   213 0000010F 83E901                  sub ecx, 1
+   214 00000112 C681[00000000]30        mov byte[_printFloat+ ecx], '0'
+   215 00000119 83E901                  sub ecx, 1
+   216 0000011C C681[00000000]2E        mov byte[_printFloat+ ecx], '.'
+   217 00000123 83E901                  sub ecx, 1
+   218 00000126 C681[00000000]30        mov byte[_printFloat+ ecx], '0'
+   219 0000012D 83E901                  sub ecx, 1
+   220 00000130 833D[00000000]01        cmp dword[_cekNegativ], 1
+   221 00000137 0F849D000000            je _tandaNegativ
+   222 0000013D E9AF000000              jmp _printFloatCetakNext
+   223                                 
+   224                                 _2digit:
+   225 00000142 BA00000000              mov edx, 0
+   226 00000147 F735[00000000]          div dword[_printFloatSepuluh]
+   227 0000014D 80C230                  add dl, '0'
+   228 00000150 8891[00000000]          mov byte[_printFloat+ ecx], dl
+   229 00000156 83E901                  sub ecx, 1
+   230 00000159 0430                    add al, '0'
+   231 0000015B 8881[00000000]          mov byte[_printFloat+ ecx], al
+   232 00000161 83E901                  sub ecx, 1
+   233 00000164 C681[00000000]2E        mov byte[_printFloat+ ecx], '.'
+   234 0000016B 83E901                  sub ecx, 1
+   235 0000016E C681[00000000]30        mov byte[_printFloat+ ecx], '0'
+   236 00000175 83E901                  sub ecx, 1
+   237 00000178 833D[00000000]01        cmp dword[_cekNegativ], 1
+   238 0000017F 745D                    je _tandaNegativ
+   239 00000181 EB71                    jmp _printFloatCetakNext
+   240                                 
+   241                                 _lebih:
+   242 00000183 BA00000000              mov edx, 0
+   243 00000188 F735[00000000]          div dword[_printFloatSepuluh]
+   244 0000018E 80C230                  add dl, '0'
+   245 00000191 8891[00000000]          mov byte[_printFloat+ ecx], dl
+   246 00000197 83E901                  sub ecx, 1
+   247 0000019A BA00000000              mov edx, 0
+   248 0000019F F735[00000000]          div dword[_printFloatSepuluh]
+   249 000001A5 80C230                  add dl, '0'
+   250 000001A8 8891[00000000]          mov byte[_printFloat+ ecx], dl
+   251 000001AE 83E901                  sub ecx, 1
+   252 000001B1 C681[00000000]2E        mov byte[_printFloat+ ecx], '.'
+   253 000001B8 83E901                  sub ecx, 1
+   254                                 
+   255                                 _DepanKoma:
+   256 000001BB BA00000000              mov edx, 0
+   257 000001C0 F735[00000000]          div dword [_printFloatSepuluh]
+   258                                 
+   259                                 
+   260 000001C6 80C230                  add dl, '0'
+   261 000001C9 8891[00000000]          mov byte [_printFloat + ecx], dl
+   262                                 
+   263 000001CF 83E901                  sub ecx, 1
+   264                                 
+   265 000001D2 83F800                  cmp eax, 0
+   266 000001D5 75E2                    jne _DepanKoma
+   267                                 
+   268 000001D7 833D[00000000]01        cmp dword[_cekNegativ], 1
+   269 000001DE 7514                    jne _printFloatCetakNext
+   270                                 
+   271                                 
+   272                                 _tandaNegativ:
+   273 000001E0 C681[00000000]2D        mov byte [_printFloat + ecx], '-'
+   274 000001E7 83E901                  sub ecx, 1
+   275 000001EA EB08                    jmp _printFloatCetakNext
+   276                                 
+   277                                 _FZero:
+   278 000001EC C681[00000000]30        mov byte [_printFloat + ecx], '0'
+   279 000001F3 83E901                  sub ecx, 1
+   280                                 
+   281                                 _printFloatCetakNext:
+   282                                 
+   283                                 
+   284 000001F6 BAFF000000              mov edx, _printFloatStrLen
+   285 000001FB 29CA                    sub edx, ecx
+   286 000001FD 83EA01                  sub edx, 1
+   287                                 
+   288                                 
+   289 00000200 81C1[00000000]          add ecx, _printFloat
+   290 00000206 83C101                  add ecx, 1
+   291                                 
+   292                                 
+   293 00000209 B804000000              mov eax, 4
+   294 0000020E BB01000000              mov ebx, 1
+   295 00000213 CD80                    int 0x80
+   296                                 
+   297                                 _FloatPrintExit:
+   298                                 
+   299 00000215 C3                      ret
+   300                                 
+   301                                 
+   302                                 %line 1+1 fungsiSqr.asm
+   303                                 
+   304                                 
+   305                                 
+   306                                 %line 6+1 fungsiSqr.asm
+   307                                 
+   308                                 [section .data]
+   309 00000008 64000000                _seratus dd 100
+   310 0000000C 02000000                _n dd 2
+   311                                 
+   312                                 [section .bss]
+   313 0000010D <gap>                   _hasilDesimal resd 1
+   314 00000111 <gap>                   _hasilFloat resd 1
+   315 00000115 <gap>                   _temp resd 1
+   316 00000119 <gap>                   var_b resd 1
+   317 0000011D <gap>                   _val resd 1
+   318                                 [section .text]
+   319                                 
+   320                                 findSqr:
+   321 00000216 A3[00000000]            mov dword[_val],eax
+   322                                 
+   323 0000021B 833D[00000000]00        cmp dword[_val], 0
+   324 00000222 0F8CD7000000            jl _imajiner
+   325 00000228 833D[00000000]01        cmp dword[_val], 1
+   326 0000022F 7D17                    jge _fungsi_akar
+   327 00000231 C705[00000000]0000-     mov dword[_hasilFloat],0
+   328 00000231 0000               
+   329 0000023B C705[00000000]0000-     mov dword[_hasilDesimal],0
+   330 0000023B 0000               
+   331 00000245 E9AA000000              jmp _sqrExit
+   332                                 
+   333                                 _fungsi_akar:
+   334                                 
+   335 0000024A BB00000000              mov ebx, 0
+   336                                 
+   337 0000024F 8B0D[00000000]          mov ecx, [_val]
+   338                                 cek:
+   339 00000255 83C301                  add ebx, 1
+   340 00000258 89D8                    mov eax, ebx
+   341                                 
+   342 0000025A BF01000000              mov edi, 1
+   343                                  ha:
+   344 0000025F 47                      inc edi
+   345 00000260 F7E3                    mul ebx
+   346 00000262 3B3D[00000000]          cmp edi, [_n]
+   347 00000268 7CF3                    jl ha
+   348                                 
+   349 0000026A 39C8                    cmp eax, ecx
+   350 0000026C 7EE5                    jle cek
+   351                                 
+   352                                 
+   353 0000026E 83EB01                  sub ebx, 1
+   354                                 
+   355 00000271 891D[00000000]          mov dword[_hasilDesimal], ebx
+   356                                 
+   357                                 
+   358                                 
+   359                                 
+   360                                 
+   361                                 
+   362 00000277 A1[00000000]            mov eax, [_hasilDesimal]
+   363 0000027C F7E0                    mul eax
+   364 0000027E 8B1D[00000000]          mov ebx, [_val]
+   365 00000284 29C3                    sub ebx, eax
+   366 00000286 891D[00000000]          mov dword[var_b], ebx
+   367                                 
+   368                                 
+   369 0000028C A1[00000000]            mov eax, [var_b]
+   370 00000291 F725[00000000]          mul dword[_seratus]
+   371 00000297 8B1D[00000000]          mov ebx, [_hasilDesimal]
+   372 0000029D BA00000000              mov edx, 0
+   373 000002A2 F7F3                    div ebx
+   374 000002A4 BB02000000              mov ebx, 2
+   375 000002A9 BA00000000              mov edx, 0
+   376 000002AE F7F3                    div ebx
+   377 000002B0 A3[00000000]            mov dword[_temp], eax
+   378                                 
+   379                                 
+   380 000002B5 A1[00000000]            mov eax, [_hasilDesimal]
+   381 000002BA F725[00000000]          mul dword[_seratus]
+   382 000002C0 0305[00000000]          add eax, [_temp]
+   383 000002C6 A3[00000000]            mov dword[var_b], eax
+   384                                 
+   385                                 
+   386 000002CB A1[00000000]            mov eax, [_temp]
+   387 000002D0 F7E0                    mul eax
+   388                                 
+   389                                 
+   390 000002D2 8B1D[00000000]          mov ebx, [var_b]
+   391 000002D8 BA00000000              mov edx, 0
+   392 000002DD F7F3                    div ebx
+   393                                 
+   394                                 
+   395 000002DF BB02000000              mov ebx, 2
+   396 000002E4 BA00000000              mov edx, 0
+   397 000002E9 F7F3                    div ebx
+   398                                 
+   399                                 
+   400 000002EB 8B1D[00000000]          mov ebx, [var_b]
+   401 000002F1 29C3                    sub ebx, eax
+   402 000002F3 891D[00000000]          mov dword[_hasilFloat], ebx
+   403                                 
+   404                                 _sqrExit:
+   405 000002F9 A1[00000000]            mov eax, [_hasilDesimal]
+   406 000002FE 8B1D[00000000]          mov ebx, [_hasilFloat]
+   407 00000304 C3                      ret
+   408                                 _imajiner:
+   409 00000305 B8FFFFFFFF              mov eax, -1
+   410 0000030A C3                      ret
+   411                                 
+   412                                 
+   413                                 %line 3+1 printBiner.asm
+   414                                 
+   415                                 _binerStrLen equ 255
+   416                                 
+   417                                 [section .data]
+   418                                 
+   419 00000010 02000000                _dua dd 2
+   420                                 
+   421                                 
+   422                                 [section .bss]
+   423                                 
+   424 00000121 <gap>                   _biner resb _binerStrLen
+   425                                 
+   426                                 [section .text]
+   427                                 
+   428                                 printBiner:
+   429                                 
+   430 0000030B B9FF000000              mov ecx, _binerStrLen
+   431 00000310 83E901                  sub ecx, 1
+   432 00000313 C681[00000000]00        mov byte[_biner+ecx],0
+   433                                 l1:
+   434                                 
+   435                                 
+   436 0000031A 83E901                  sub ecx,1
+   437 0000031D BA00000000              mov edx, 0
+   438 00000322 F735[00000000]          div dword[_dua]
+   439 00000328 80C230                  add dl,'0'
+   440 0000032B 8891[00000000]          mov byte [_biner+ecx],dl
+   441                                 
+   442 00000331 83F800                  cmp eax,0
+   443 00000334 75E2                    jne l1
+   444                                 
+   445                                 
+   446                                 _printBiner:
+   447                                 
+   448 00000336 B8[00000000]            mov eax, _biner
+   449 0000033B 01C8                    add eax, ecx
+   450 0000033D E85DFDFFFF              call printString
+   451                                 
+   452                                 
+   453                                 _ExitBiner:
+   454 00000342 C3                      ret
+   455                                 
+   456                                 
+   457                                 %line 3+1 fungsiAPK.asm
+   458                                 
+   459                                 [section .data]
+   460 00000014 64000000                seratus_ dd 100
+   461                                 
+   462                                 [section .bss]
+   463 00000220 <gap>                   _ax2 resd 1
+   464 00000224 <gap>                   _bx1 resd 1
+   465 00000228 <gap>                   _cx0 resd 1
+   466 0000022C <gap>                   tempd_ resd 1
+   467 00000230 <gap>                   _x1 resd 1
+   468 00000234 <gap>                   _x2 resd 1
+   469 00000238 <gap>                   temp_ resd 1
+   470 0000023C <gap>                   temp2_ resd 1
+   471                                 
+   472                                 [section .text]
+   473                                 
+   474                                 findAPK:
+   475 00000343 A3[00000000]            mov dword[_ax2], eax
+   476 00000348 891D[00000000]          mov dword[_bx1], ebx
+   477 0000034E 890D[00000000]          mov dword[_cx0], ecx
+   478                                 
+   479                                 
+   480 00000354 A1[00000000]            mov eax, [_bx1]
+   481 00000359 F7E0                    mul eax
+   482 0000035B A3[00000000]            mov dword[temp_],eax
+   483                                 
+   484                                 
+   485 00000360 A1[00000000]            mov eax, [_ax2]
+   486 00000365 BB04000000              mov ebx, 4
+   487 0000036A F725[00000000]          mul dword[_cx0]
+   488 00000370 F7E3                    mul ebx
+   489                                 
+   490                                 
+   491 00000372 8B1D[00000000]          mov ebx, [temp_]
+   492 00000378 29C3                    sub ebx, eax
+   493                                 
+   494                                 
+   495                                 
+   496 0000037A 89D8                    mov eax, ebx
+   497 0000037C E890FEFFFF              call findSqr
+   498 00000381 83F8FF                  cmp eax, -1
+   499 00000384 746F                    je _imajinerAKP
+   500                                 
+   501 00000386 891D[00000000]          mov dword[tempd_], ebx
+   502                                 
+   503                                 
+   504 0000038C A1[00000000]            mov eax, [_bx1]
+   505 00000391 F725[00000000]          mul dword[seratus_]
+   506 00000397 BBFFFFFFFF              mov ebx, -1
+   507 0000039C F7E3                    mul ebx
+   508 0000039E A3[00000000]            mov dword[temp_], eax
+   509                                 
+   510                                 
+   511 000003A3 B802000000              mov eax, 2
+   512 000003A8 F725[00000000]          mul dword[_ax2]
+   513 000003AE A3[00000000]            mov dword[temp2_], eax
+   514                                 
+   515                                 nilai_x1:
+   516 000003B3 A1[00000000]            mov eax, [temp_]
+   517 000003B8 2B05[00000000]          sub eax, [tempd_]
+   518 000003BE BA00000000              mov edx, 0
+   519 000003C3 99                      cdq
+   520 000003C4 F73D[00000000]          idiv dword[temp2_]
+   521 000003CA A3[00000000]            mov dword[_x1], eax
+   522                                 
+   523                                 nilai_x2:
+   524 000003CF A1[00000000]            mov eax, [temp_]
+   525 000003D4 0305[00000000]          add eax, [tempd_]
+   526 000003DA BA00000000              mov edx, 0
+   527 000003DF 99                      cdq
+   528 000003E0 F73D[00000000]          idiv dword[temp2_]
+   529 000003E6 A3[00000000]            mov dword[_x2], eax
+   530                                 
+   531                                 
+   532                                 _ExitAPK:
+   533 000003EB A1[00000000]            mov eax, [_x1]
+   534 000003F0 8B1D[00000000]          mov ebx, [_x2]
+   535 000003F6 C3                      ret
+   536                                 
+   537                                 _imajinerAKP:
+   538 000003F7 C3                      ret
+   539                                 
+   540                                 
+   541                                 %line 1+1 readFile.asm
+   542                                 
+   543                                 %line 4+1 readFile.asm
+   544                                 
+   545                                 [section .data]
+   546                                  buffer_size equ 1000
+   547                                 [section .bss]
+   548 00000240 <gap>                   fd_in resb 1
+   549 00000241 <gap>                   info resb buffer_size
+   550                                 [section .text]
+   551                                 
+   552                                 readFile:
+   553 000003F8 89C3                    mov ebx, eax
+   554                                 
+   555                                 
+   556 000003FA B805000000              mov eax, 5
+   557                                 
+   558 000003FF B900000000              mov ecx, 0
+   559 00000404 BA09030000              mov edx, 0777
+   560 00000409 CD80                    int 0x80
+   561 0000040B A3[00000000]            mov [fd_in], eax
+   562                                 
+   563                                 
+   564 00000410 B803000000              mov eax, 3
+   565 00000415 8B1D[00000000]          mov ebx, [fd_in]
+   566 0000041B B9[00000000]            mov ecx, info
+   567 00000420 BAE8030000              mov edx, buffer_size
+   568 00000425 CD80                    int 0x80
+   569                                 
+   570                                 
+   571 00000427 B806000000              mov eax, 6
+   572 0000042C 8B1D[00000000]          mov ebx, [fd_in]
+   573 00000432 CD80                    int 0x80
+   574                                 
+   575                                 
+   576 00000434 B804000000              mov eax,4
+   577 00000439 B9[00000000]            mov ecx, info
+   578 0000043E BAE8030000              mov edx, buffer_size
+   579 00000443 BB01000000              mov ebx,1
+   580 00000448 CD80                    int 0x80
+   581                                 
+   582 0000044A C3                      ret
+   583                                 
+   584                                 
+   585                                 %line 11+1 main.asm
+   586                                 
+   587                                 [section .data]
+   588 00000018 28737172292000          msg1 db "(sqr) ",0
+   589 0000001F 486173696C20646573-     msg2 db "Hasil desimal : ",0
+   590 0000001F 696D616C203A2000   
+   591 00000030 486173696C2062696E-     msg3 db "Hasil biner : ",0
+   592 00000030 6572203A2000       
+   593 0000003F 42696C616E67616E20-     msg4 db "Bilangan imajiner ",10,0
+   594 0000003F 696D616A696E657220-
+   595 0000003F 0A00               
+   596 00000053 2861706B292000          msg5 db "(apk) ",0
+   597 0000005A 5831203D2000            msg6 db "X1 = ",0
+   598 00000060 5832203D2000            msg7 db "X2 = ",0
+   599 00000066 73717200                msg8 db "sqr",0
+   600                                  len8 equ $-msg8
+   601 0000006A 4D6173756B6B616E20-     msg9 db "Masukkan koefisien dari AX^2 BX C ",10
+   602 0000006A 6B6F6566697369656E-
+   603 0000006A 20646172692041585E-
+   604 0000006A 322042582043200A   
+   605 0000008D 6578697400              msg10 db "exit",0
+   606                                  len10 equ $-msg10
+   607 00000092 726561646D652E7478-     file_name db "readme.txt"
+   608 00000092 74                 
+   609                                 
+   610                                 [section .bss]
+   611                                 
+   612 00000629 <gap>                   hasil resd 1
+   613 0000062D <gap>                   hasilfloat resd 1
+   614 00000631 <gap>                   ax2 resd 1
+   615 00000635 <gap>                   bx1 resd 1
+   616 00000639 <gap>                   cx0 resd 1
+   617 0000063D <gap>                   x1 resd 1
+   618 00000641 <gap>                   x2 resd 1
+   619                                 [section .text]
+   620                                 [global main]
+   621                                 
+   622                                 main:
+   623 0000044B 90                      nop
+   624 0000044C 55                      push ebp
+   625 0000044D 89E5                    mov ebp, esp
+   626                                 
+   627                                 mulai:
+   628 0000044F 837D0402                cmp dword[ebp+4],2
+   629 00000453 0F8515010000            jne readmeText
+   630                                 
+   631 00000459 8B750C                  mov esi, [ebp+12]
+   632 0000045C BF[00000000]            mov edi, msg8
+   633 00000461 B904000000              mov ecx, len8
+   634 00000466 FC                      cld
+   635 00000467 F3A6                    repe cmpsb
+   636 00000469 E300                    jecxz fungsi_Sqr
+   637 0000046B EB66                    jmp Fungsi_APK
+   638                                 
+   639                                 fungsi_Sqr:
+   640                                 
+   641 0000046D B8[00000000]            mov eax, msg1
+   642 00000472 E828FCFFFF              call printString
+   643                                 
+   644 00000477 E896FBFFFF              call scanNum
+   645                                 
+   646                                 
+   647 0000047C E890FDFFFF              call findSqr
+   648                                 
+   649 00000481 83F8FF                  cmp eax, -1
+   650 00000484 0F84D8000000            je imajiner
+   651 0000048A A3[00000000]            mov dword[hasil], eax
+   652 0000048F 891D[00000000]          mov dword[hasilfloat], ebx
+   653                                 
+   654                                  cetak:
+   655 00000495 B8[00000000]            mov eax, msg2
+   656 0000049A E800FCFFFF              call printString
+   657                                 
+   658 0000049F A1[00000000]            mov eax, [hasilfloat]
+   659 000004A4 BB01000000              mov ebx, 1
+   660 000004A9 E80FFCFFFF              call printFloat
+   661                                 
+   662 000004AE B00A                    mov al, 10
+   663 000004B0 E8CEFBFFFF              call printChar
+   664                                 
+   665 000004B5 B8[00000000]            mov eax, msg3
+   666 000004BA E8E0FBFFFF              call printString
+   667                                 
+   668 000004BF A1[00000000]            mov eax, [hasil]
+   669 000004C4 E83DFEFFFF              call printBiner
+   670                                 
+   671 000004C9 B00A                    mov al,10
+   672 000004CB E8B3FBFFFF              call printChar
+   673                                 
+   674 000004D0 E975FFFFFF              jmp mulai
+   675                                 
+   676                                 
+   677                                 Fungsi_APK:
+   678 000004D5 B8[00000000]            mov eax, msg5
+   679 000004DA E8C0FBFFFF              call printString
+   680                                 
+   681 000004DF E82EFBFFFF              call scanNum
+   682 000004E4 A3[00000000]            mov dword[ax2], eax
+   683 000004E9 E824FBFFFF              call scanNum
+   684 000004EE A3[00000000]            mov dword[bx1], eax
+   685 000004F3 E81AFBFFFF              call scanNum
+   686 000004F8 A3[00000000]            mov dword[cx0], eax
+   687                                 
+   688 000004FD A1[00000000]            mov eax, [ax2]
+   689 00000502 8B1D[00000000]          mov ebx, [bx1]
+   690 00000508 8B0D[00000000]          mov ecx, [cx0]
+   691 0000050E E82BFEFFFF              call findAPK
+   692 00000513 83F8FF                  cmp eax, -1
+   693 00000516 744E                    je imajiner
+   694                                 
+   695 00000518 A3[00000000]            mov dword[x1], eax
+   696 0000051D 891D[00000000]          mov dword[x2], ebx
+   697                                 
+   698 00000523 B8[00000000]            mov eax, msg6
+   699 00000528 E872FBFFFF              call printString
+   700                                 
+   701 0000052D A1[00000000]            mov eax, [x1]
+   702 00000532 BB01000000              mov ebx, 1
+   703 00000537 E881FBFFFF              call printFloat
+   704                                 
+   705 0000053C B00A                    mov al, 10
+   706 0000053E E840FBFFFF              call printChar
+   707                                 
+   708 00000543 B8[00000000]            mov eax, msg7
+   709 00000548 E852FBFFFF              call printString
+   710                                 
+   711 0000054D A1[00000000]            mov eax, [x2]
+   712 00000552 BB01000000              mov ebx, 1
+   713 00000557 E861FBFFFF              call printFloat
+   714                                 
+   715 0000055C B00A                    mov al, 10
+   716 0000055E E820FBFFFF              call printChar
+   717                                 
+   718 00000563 E9E2FEFFFF              jmp mulai
+   719                                 
+   720                                 imajiner:
+   721 00000568 B8[00000000]            mov eax, msg4
+   722 0000056D E82DFBFFFF              call printString
+   723 00000572 EB08                    jmp exit
+   724                                 
+   725                                 readmeText:
+   726 00000574 B8[00000000]            mov eax, file_name
+   727 00000579 E875FEFFFF              call readFile
+   728                                 exit:
+   729 0000057E B801000000              mov eax, 1
+   730 00000583 BB00000000              mov ebx, 0
+   731 00000588 CD80                    int 0x80
